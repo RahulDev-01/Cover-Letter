@@ -3,6 +3,7 @@
 import { generateCoverLetter, type CoverLetterInput } from "@/ai/flows/generate-cover-letter";
 import { suggestSkills, type SuggestSkillsInput } from "@/ai/flows/suggest-skills";
 import { optimizeForAts, type OptimizeForAtsInput } from "@/ai/flows/optimize-for-ats";
+import { extractResumeData, type ExtractResumeDataInput } from "@/ai/flows/extract-resume-data";
 import { formSchema } from "./schema";
 
 export async function generateAction(input: CoverLetterInput) {
@@ -37,5 +38,15 @@ export async function optimizeAtsAction(input: OptimizeForAtsInput) {
   } catch (error) {
     console.error("Error in optimizeForAts flow:", error);
     throw new Error("Failed to optimize for ATS.");
+  }
+}
+
+export async function extractResumeAction(input: ExtractResumeDataInput) {
+  try {
+    const output = await extractResumeData(input);
+    return output;
+  } catch (error) {
+    console.error("Error in extractResumeData flow:", error);
+    throw new Error("Failed to extract data from resume.");
   }
 }

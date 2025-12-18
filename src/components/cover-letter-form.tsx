@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { useFormContext } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,28 +25,44 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Loader2, Wand2, Search, Bot } from "lucide-react";
+import { Loader2, Wand2, Search, Bot, Upload } from "lucide-react";
 
 type CoverLetterFormProps = {
   onGenerate: () => void;
   onSuggestSkills: () => void;
   onOptimize: () => void;
+  onExtractResume: (file: File) => void;
   isGenerating: boolean;
   isSuggesting: boolean;
   isOptimizing: boolean;
+  isExtracting: boolean;
 };
 
 export function CoverLetterForm({
   onGenerate,
   onSuggestSkills,
   onOptimize,
+  onExtractResume,
   isGenerating,
   isSuggesting,
   isOptimizing,
+  isExtracting,
 }: CoverLetterFormProps) {
   const form = useFormContext();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const isLoading = isGenerating || isSuggesting || isOptimizing;
+  const isLoading = isGenerating || isSuggesting || isOptimizing || isExtracting;
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      onExtractResume(file);
+    }
+    // Reset file input to allow uploading the same file again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   return (
     <Card className="shadow-lg">
@@ -216,10 +233,34 @@ export function CoverLetterForm({
                   name="jobDetails.experienceSummary"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Experience Summary / Resume</FormLabel>
+                      <div className="flex justify-between items-center">
+                        <FormLabel>Experience Summary / Resume</FormLabel>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          className="hidden"
+                          onChange={handleFileChange}
+                          accept=".txt,.pdf,.doc,.docx"
+                        />
+                        <Button
+                          type="button"
+                          variant="link"
+                          size="sm"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={isLoading}
+                          className="pr-0"
+                        >
+                          {isExtracting ? (
+                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                             <Upload className="mr-2 h-4 w-4" />
+                          )}
+                          {isExtracting ? "Extracting..." : "Extract from Resume"}
+                        </Button>
+                      </div>
                       <FormControl>
                         <Textarea
-                          placeholder="Summarize your relevant experience or paste your resume text..."
+                          placeholder="Summarize your relevant experience, paste your resume text, or upload a resume to have AI do it for you."
                           className="min-h-32"
                           {...field}
                         />

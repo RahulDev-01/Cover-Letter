@@ -15,7 +15,7 @@ export const formSchema = z.object({
   jobDetails: z.object({
     jobTitle: z.string().min(1, "Job title is required."),
     jobDescription: z.string().min(20, "Job description should be more detailed."),
-    experienceSummary: z.string().min(20, "Please provide a summary of your experience."),
+    experienceSummary: z.string().min(20, "Please provide a summary of your experience or upload a resume."),
     relevantSkills: z.string().min(3, "Please list some relevant skills."),
   }),
   templateStyle: z.string().default("classic"),

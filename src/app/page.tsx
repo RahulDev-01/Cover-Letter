@@ -8,6 +8,7 @@ import {
   generateAction,
   suggestSkillsAction,
   optimizeAtsAction,
+  extractResumeAction,
 } from "@/lib/actions";
 import { formSchema } from "@/lib/schema";
 import { useToast } from "@/hooks/use-toast";
@@ -36,6 +37,7 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestions | null>(null);
 
   const { toast } = useToast();
@@ -165,6 +167,52 @@ export default function Home() {
     }
   };
 
+  const handleExtractResume = async (file: File) => {
+    if (!file) {
+      toast({
+        variant: 'destructive',
+        title: 'No file selected',
+        description: 'Please select a resume file to upload.',
+      });
+      return;
+    }
+
+    setIsExtracting(true);
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const resumeContent = e.target?.result as string;
+        if (!resumeContent) {
+          throw new Error('Could not read file content.');
+        }
+        const result = await extractResumeAction({ resumeContent });
+        form.setValue('jobDetails.experienceSummary', result.experienceSummary, { shouldValidate: true });
+        toast({
+          title: 'Resume Extracted!',
+          description: 'Your experience summary has been populated.',
+        });
+      } catch (error) {
+        console.error(error);
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'There was a problem extracting data from your resume.',
+        });
+      } finally {
+        setIsExtracting(false);
+      }
+    };
+    reader.onerror = () => {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to read the selected file.',
+      });
+      setIsExtracting(false);
+    };
+    reader.readAsText(file);
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
@@ -182,9 +230,11 @@ export default function Home() {
               onGenerate={form.handleSubmit(handleGenerate)}
               onSuggestSkills={handleSuggestSkills}
               onOptimize={handleOptimize}
+              onExtractResume={handleExtractResume}
               isGenerating={isGenerating}
               isSuggesting={isSuggesting}
               isOptimizing={isOptimizing}
+              isExtracting={isExtracting}
             />
             <CoverLetterPreview
               generatedContent={generatedLetter}
