@@ -12,7 +12,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const ExtractResumeDataInputSchema = z.object({
-  resumeContent: z.string().describe('The text content of the resume.'),
+  resumeFile: z.string().describe('A resume file, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'),
 });
 export type ExtractResumeDataInput = z.infer<
   typeof ExtractResumeDataInputSchema
@@ -38,14 +38,16 @@ const extractResumeDataPrompt = ai.definePrompt({
   name: 'extractResumeDataPrompt',
   input: {schema: ExtractResumeDataInputSchema},
   output: {schema: ExtractResumeDataOutputSchema},
-  prompt: `You are an expert at parsing resumes. Extract the work experience and skills from the following resume text.
+  prompt: `You are an expert at parsing resumes. Extract the work experience and skills from the following resume.
+
+The resume is provided as a file.
 
 Provide a comprehensive summary for the work experience. The summary should be written in the first person and be suitable for a cover letter's experience summary section.
 
 Extract the skills as a list of strings.
 
-Resume Text:
-{{{resumeContent}}}
+Resume File:
+{{media url=resumeFile}}
 `,
 });
 

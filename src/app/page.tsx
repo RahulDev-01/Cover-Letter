@@ -176,18 +176,22 @@ export default function Home() {
       });
       return;
     }
-
     setIsExtracting(true);
+
     const reader = new FileReader();
+    reader.readAsDataURL(file);
     reader.onload = async (e) => {
       try {
         const resumeContent = e.target?.result as string;
+
         if (!resumeContent) {
           throw new Error('Could not read file content.');
         }
-        const result = await extractResumeAction({ resumeContent });
+
+        const result = await extractResumeAction({ resumeFile: resumeContent });
         form.setValue('jobDetails.experienceSummary', result.experienceSummary, { shouldValidate: true });
         form.setValue('jobDetails.relevantSkills', result.skills.join(', '), { shouldValidate: true });
+
         toast({
           title: 'Resume Extracted!',
           description: 'Your experience summary and skills have been populated.',
@@ -203,7 +207,7 @@ export default function Home() {
         setIsExtracting(false);
       }
     };
-    reader.onerror = () => {
+     reader.onerror = () => {
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -211,7 +215,6 @@ export default function Home() {
       });
       setIsExtracting(false);
     };
-    reader.readAsText(file);
   };
 
   const copyToClipboard = (text: string) => {
