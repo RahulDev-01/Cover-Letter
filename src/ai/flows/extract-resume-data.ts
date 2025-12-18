@@ -22,6 +22,7 @@ const ExtractResumeDataOutputSchema = z.object({
   experienceSummary: z
     .string()
     .describe('A summary of the work experience from the resume.'),
+  skills: z.array(z.string()).describe('A list of skills extracted from the resume.'),
 });
 export type ExtractResumeDataOutput = z.infer<
   typeof ExtractResumeDataOutputSchema
@@ -37,7 +38,11 @@ const extractResumeDataPrompt = ai.definePrompt({
   name: 'extractResumeDataPrompt',
   input: {schema: ExtractResumeDataInputSchema},
   output: {schema: ExtractResumeDataOutputSchema},
-  prompt: `You are an expert at parsing resumes. Extract the work experience from the following resume text and provide a comprehensive summary. The summary should be written in the first person and be suitable for a cover letter's experience summary section.
+  prompt: `You are an expert at parsing resumes. Extract the work experience and skills from the following resume text.
+
+Provide a comprehensive summary for the work experience. The summary should be written in the first person and be suitable for a cover letter's experience summary section.
+
+Extract the skills as a list of strings.
 
 Resume Text:
 {{{resumeContent}}}

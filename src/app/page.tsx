@@ -187,9 +187,10 @@ export default function Home() {
         }
         const result = await extractResumeAction({ resumeContent });
         form.setValue('jobDetails.experienceSummary', result.experienceSummary, { shouldValidate: true });
+        form.setValue('jobDetails.relevantSkills', result.skills.join(', '), { shouldValidate: true });
         toast({
           title: 'Resume Extracted!',
-          description: 'Your experience summary has been populated.',
+          description: 'Your experience summary and skills have been populated.',
         });
       } catch (error) {
         console.error(error);
