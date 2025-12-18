@@ -1,10 +1,18 @@
 "use client";
 
 import { useFormContext } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileDown } from "lucide-react";
+import { FileDown, Image as ImageIcon, FileText } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type CoverLetterPreviewProps = {
@@ -24,29 +32,32 @@ const ClassicTemplate = ({ data, generatedContent }: { data: any, generatedConte
   }, []);
 
   return (
-    <div className="font-body text-sm text-gray-800 dark:text-gray-300 space-y-6">
-      <div className="text-right">
-        <p className="font-bold font-headline text-base text-gray-900 dark:text-gray-100">{data.personalInformation.name || "Your Name"}</p>
-        <p>{data.personalInformation.address || "Your Address"}</p>
-        <p>{data.personalInformation.phone || "Your Phone"}</p>
-        <p>{data.personalInformation.email || "your.email@example.com"}</p>
+    <div className="font-body text-sm text-foreground space-y-8 bg-white p-12">
+      <div className="flex justify-between items-start border-b border-black pb-4">
+        <h1 className="text-5xl font-headline font-bold text-primary tracking-widest">
+          {data.personalInformation.name?.toUpperCase() || "YOUR NAME"}
+        </h1>
+        <div className="text-right text-xs text-primary">
+          <p>{data.personalInformation.email || "your.email@example.com"}</p>
+          <p>{data.personalInformation.phone || "Your Phone"}</p>
+        </div>
       </div>
 
-      <div>
+      <div className="space-y-4">
         <p>{currentDate}</p>
+        <div>
+          <p className="font-bold text-base font-headline">{data.recipientInformation.contactName?.toUpperCase() || "RECIPIENT NAME"}</p>
+          <div className="w-10 border-b-2 border-black my-1"></div>
+          <p>{data.recipientInformation.company ? `Founder ${data.recipientInformation.company}` : "Recipient Title"}</p>
+          <p>{data.recipientInformation.address || "Company Address"}</p>
+        </div>
       </div>
 
       <div>
-        <p className="font-bold">{data.recipientInformation.contactName || "Hiring Manager"}</p>
-        <p>{data.recipientInformation.company || "Company Name"}</p>
-        <p>{data.recipientInformation.address || "Company Address"}</p>
+        <p>Dear Mr. {data.recipientInformation.contactName?.split(' ').pop() || "Peeters"},</p>
       </div>
 
-      <div>
-        <p>Dear {data.recipientInformation.contactName || "Hiring Manager"},</p>
-      </div>
-
-      <div className="space-y-4 whitespace-pre-wrap text-justify">
+      <div className="space-y-4 whitespace-pre-wrap text-justify leading-relaxed">
         {generatedContent || (
           <p className="text-muted-foreground">
             Your AI-generated cover letter will appear here. Fill out the form and click "Generate with AI".
@@ -55,29 +66,34 @@ const ClassicTemplate = ({ data, generatedContent }: { data: any, generatedConte
       </div>
       
       <div>
-        <p>Sincerely,</p>
-        <p className="mt-4 h-12">{/* Space for signature */}</p>
-        <p>{data.personalInformation.name || "Your Name"}</p>
+        <p>Best Regards,</p>
+        <p className="mt-8 font-headline text-lg">{data.personalInformation.name || "Your Name"}</p>
       </div>
     </div>
   );
 };
 
 const LoadingSkeleton = () => (
-  <div className="space-y-6">
-    <div className="flex justify-end items-end flex-col gap-1">
-      <Skeleton className="h-5 w-32" />
-      <Skeleton className="h-4 w-48" />
-      <Skeleton className="h-4 w-40" />
-      <Skeleton className="h-4 w-44" />
+  <div className="space-y-6 p-12">
+     <div className="flex justify-between items-start border-b border-muted pb-4">
+        <Skeleton className="h-12 w-1/2" />
+        <div className="text-right space-y-2">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-4 w-32" />
+        </div>
+     </div>
+    <div className="space-y-4">
+        <Skeleton className="h-4 w-32" />
+         <div className="space-y-2">
+          <Skeleton className="h-5 w-40" />
+           <Skeleton className="h-1 w-10" />
+          <Skeleton className="h-4 w-48" />
+          <Skeleton className="h-4 w-48" />
+        </div>
     </div>
+    
     <Skeleton className="h-4 w-32" />
-     <div className="flex flex-col gap-1">
-      <Skeleton className="h-5 w-32" />
-      <Skeleton className="h-4 w-40" />
-      <Skeleton className="h-4 w-48" />
-    </div>
-    <Skeleton className="h-4 w-40" />
+    
     <div className="space-y-2">
       <Skeleton className="h-4 w-full" />
       <Skeleton className="h-4 w-full" />
@@ -90,7 +106,7 @@ const LoadingSkeleton = () => (
       <Skeleton className="h-4 w-[85%]" />
     </div>
     <Skeleton className="h-4 w-24" />
-    <Skeleton className="h-4 w-32 mt-8" />
+    <Skeleton className="h-5 w-32 mt-8" />
   </div>
 );
 
@@ -100,27 +116,66 @@ export function CoverLetterPreview({
 }: CoverLetterPreviewProps) {
   const { watch } = useFormContext();
   const formData = watch();
+  const printableRef = useRef<HTMLDivElement>(null);
 
-  const handleDownload = () => {
-    window.print();
+  const downloadAs = async (format: 'pdf' | 'png') => {
+    const element = printableRef.current;
+    if (!element) return;
+
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+    });
+
+    if (format === 'pdf') {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/png');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('cover-letter.pdf');
+    } else if (format === 'png') {
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = 'cover-letter.png';
+      link.click();
+    }
   };
 
+
   return (
-    <Card className="shadow-lg sticky top-8">
+    <Card className="shadow-lg sticky top-8 bg-card">
       <CardHeader className="flex-row items-center justify-between no-print">
         <CardTitle className="font-headline text-3xl">Preview</CardTitle>
-        <Button variant="outline" size="sm" onClick={handleDownload} disabled={!generatedContent}>
-          <FileDown className="mr-2 h-4 w-4" />
-          Download
-        </Button>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" disabled={!generatedContent}>
+                <FileDown className="mr-2 h-4 w-4" />
+                Download
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => downloadAs('pdf')}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => downloadAs('png')}>
+                    <ImageIcon className="mr-2 h-4 w-4" />
+                    Image (PNG)
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
       </CardHeader>
       <CardContent>
-        <div id="printable-content" className="bg-white dark:bg-card p-8 rounded-md min-h-[80vh] border border-border/80 shadow-inner">
-            {isLoading ? (
-                <LoadingSkeleton />
-            ) : (
-                <ClassicTemplate data={formData} generatedContent={generatedContent} />
-            )}
+        <div className="bg-background p-8 rounded-md min-h-[80vh] border border-border/80 shadow-inner overflow-hidden">
+            <div ref={printableRef} id="printable-content">
+                {isLoading ? (
+                    <div className="bg-white"><LoadingSkeleton /></div>
+                ) : (
+                    <ClassicTemplate data={formData} generatedContent={generatedContent} />
+                )}
+            </div>
         </div>
       </CardContent>
     </Card>
