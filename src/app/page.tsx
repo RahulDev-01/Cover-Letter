@@ -9,6 +9,7 @@ import {
   suggestSkillsAction,
   optimizeAtsAction,
   extractResumeAction,
+  extractJobDataAction,
 } from "@/lib/actions";
 import { formSchema } from "@/lib/schema";
 import { useToast } from "@/hooks/use-toast";
@@ -38,6 +39,7 @@ export default function Home() {
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [isExtractingJob, setIsExtractingJob] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestions | null>(null);
 
   const { toast } = useToast();
@@ -217,6 +219,39 @@ export default function Home() {
     };
   };
 
+  const handleExtractJobData = async (jobPosting: string) => {
+    if (!jobPosting) {
+      toast({
+        variant: 'destructive',
+        title: 'No job posting text',
+        description: 'Please paste the job posting text first.',
+      });
+      return;
+    }
+    setIsExtractingJob(true);
+    try {
+      const result = await extractJobDataAction({ jobPosting });
+      form.setValue('recipientInformation.company', result.company, { shouldValidate: true });
+      form.setValue('recipientInformation.address', result.address, { shouldValidate: true });
+      form.setValue('jobDetails.jobTitle', result.jobTitle, { shouldValidate: true });
+      form.setValue('jobDetails.jobDescription', jobPosting, { shouldValidate: true });
+
+      toast({
+        title: 'Job Data Extracted!',
+        description: 'The company name, address, and job title have been populated.',
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'There was a problem extracting data from the job posting.',
+      });
+    } finally {
+      setIsExtractingJob(false);
+    }
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
@@ -235,10 +270,12 @@ export default function Home() {
               onSuggestSkills={handleSuggestSkills}
               onOptimize={handleOptimize}
               onExtractResume={handleExtractResume}
+              onExtractJobData={handleExtractJobData}
               isGenerating={isGenerating}
               isSuggesting={isSuggesting}
               isOptimizing={isOptimizing}
               isExtracting={isExtracting}
+              isExtractingJob={isExtractingJob}
             />
             <CoverLetterPreview
               generatedContent={generatedLetter}

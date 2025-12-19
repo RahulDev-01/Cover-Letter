@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,17 +25,19 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Loader2, Wand2, Search, Bot, Upload } from "lucide-react";
+import { Loader2, Wand2, Search, Bot, Upload, ClipboardPaste } from "lucide-react";
 
 type CoverLetterFormProps = {
   onGenerate: () => void;
   onSuggestSkills: () => void;
   onOptimize: () => void;
   onExtractResume: (file: File) => void;
+  onExtractJobData: (jobPosting: string) => void;
   isGenerating: boolean;
   isSuggesting: boolean;
   isOptimizing: boolean;
   isExtracting: boolean;
+  isExtractingJob: boolean;
 };
 
 export function CoverLetterForm({
@@ -43,15 +45,18 @@ export function CoverLetterForm({
   onSuggestSkills,
   onOptimize,
   onExtractResume,
+  onExtractJobData,
   isGenerating,
   isSuggesting,
   isOptimizing,
   isExtracting,
+  isExtractingJob,
 }: CoverLetterFormProps) {
   const form = useFormContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [jobPostingText, setJobPostingText] = useState("");
 
-  const isLoading = isGenerating || isSuggesting || isOptimizing || isExtracting;
+  const isLoading = isGenerating || isSuggesting || isOptimizing || isExtracting || isExtractingJob;
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -71,11 +76,41 @@ export function CoverLetterForm({
           Craft Your Cover Letter
         </CardTitle>
         <CardDescription>
-          Fill in the details below and let our AI assist you.
+          Fill in the details below, or paste a job post to get started.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={onGenerate} className="space-y-8">
+           <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-job-post">
+              <AccordionTrigger className="font-headline text-lg">
+                Auto-fill from Job Posting
+              </AccordionTrigger>
+              <AccordionContent className="space-y-4 pt-4">
+                <Textarea
+                  placeholder="Paste the entire job posting here..."
+                  className="min-h-32"
+                  value={jobPostingText}
+                  onChange={(e) => setJobPostingText(e.target.value)}
+                />
+                <Button 
+                  type="button" 
+                  className="w-full" 
+                  variant="secondary"
+                  onClick={() => onExtractJobData(jobPostingText)}
+                  disabled={isLoading || !jobPostingText}
+                >
+                   {isExtractingJob ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <ClipboardPaste />
+                  )}
+                  {isExtractingJob ? "Extracting..." : "Extract & Fill Form"}
+                </Button>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
           <Accordion type="multiple" defaultValue={["item-1", "item-2", "item-3"]} className="w-full">
             <AccordionItem value="item-1">
               <AccordionTrigger className="font-headline text-lg">
@@ -167,7 +202,7 @@ export function CoverLetterForm({
                   name="recipientInformation.contactName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Hiring Manager Name</FormLabel>
+                      <FormLabel>Hiring Manager Name (Optional)</FormLabel>
                       <FormControl>
                         <Input placeholder="Jane Smith" {...field} />
                       </FormControl>

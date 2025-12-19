@@ -4,6 +4,7 @@ import { generateCoverLetter, type CoverLetterInput } from "@/ai/flows/generate-
 import { suggestSkills, type SuggestSkillsInput } from "@/ai/flows/suggest-skills";
 import { optimizeForAts, type OptimizeForAtsInput } from "@/ai/flows/optimize-for-ats";
 import { extractResumeData, type ExtractResumeDataInput } from "@/ai/flows/extract-resume-data";
+import { extractJobData, type ExtractJobDataInput } from "@/ai/flows/extract-job-data";
 import { formSchema } from "./schema";
 
 export async function generateAction(input: CoverLetterInput) {
@@ -48,5 +49,15 @@ export async function extractResumeAction(input: ExtractResumeDataInput) {
   } catch (error) {
     console.error("Error in extractResumeData flow:", error);
     throw new Error("Failed to extract data from resume.");
+  }
+}
+
+export async function extractJobDataAction(input: ExtractJobDataInput) {
+  try {
+    const output = await extractJobData(input);
+    return output;
+  } catch (error) {
+    console.error("Error in extractJobData flow:", error);
+    throw new Error("Failed to extract data from job posting.");
   }
 }
