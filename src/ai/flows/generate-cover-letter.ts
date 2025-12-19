@@ -48,7 +48,9 @@ const prompt = ai.definePrompt({
   name: 'coverLetterPrompt',
   input: {schema: CoverLetterInputSchema},
   output: {schema: CoverLetterOutputSchema},
-  prompt: `You are a professional cover letter writer. Generate a cover letter based on the provided information.
+  prompt: `You are an expert cover letter writer. Your task is to create a compelling, professional, and human-sounding cover letter based on the information below.
+
+IMPORTANT: Avoid repeating the job title or company name excessively. Use varied and natural language. The letter should flow smoothly and not sound like a template.
 
 Personal Information:
 Name: {{{personalInformation.name}}}
@@ -69,7 +71,6 @@ Job Description: {{{jobDetails.jobDescription}}}
 Relevant Skills: {{{jobDetails.relevantSkills}}}
 Experience Summary: {{{jobDetails.experienceSummary}}}
 
-
 {{#if tone}}
 Tone: {{{tone}}}
 {{/if}}
@@ -78,10 +79,10 @@ Tone: {{{tone}}}
 Template Style: {{{templateStyle}}}
 {{/if}}
 
-Write a compelling and humanly-written cover letter tailored to the job description, highlighting key achievements and skills. Optimize the cover letter for Applicant Tracking Systems (ATS) by incorporating relevant keywords from the job description.
+Craft a cover letter that is tailored to the job description. Highlight the most relevant skills and achievements from the experience summary. Ensure the letter is optimized for Applicant Tracking Systems (ATS) by naturally incorporating keywords from the job description, but prioritize making it sound authentic and human-written.
 
-If a hiring manager name is not provided, use a generic but professional salutation.
-`,  
+If a hiring manager's name is not provided, use a generic but professional salutation like "Dear Hiring Team,".
+`,
 });
 
 const generateCoverLetterFlow = ai.defineFlow(
