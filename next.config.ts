@@ -30,6 +30,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  serverActions: {
+    bodySizeLimit: '4.5mb', // Accommodate larger file uploads
+    // Extend the timeout for AI operations
+    // @ts-ignore
+    executionTimeout: 180, // 3 minutes
+  },
 };
 
 export default nextConfig;
