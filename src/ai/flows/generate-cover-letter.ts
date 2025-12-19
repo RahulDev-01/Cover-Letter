@@ -78,7 +78,7 @@ Tone: {{{tone}}}
 Template Style: {{{templateStyle}}}
 {{/if}}
 
-Write a compelling cover letter tailored to the job description, highlighting key achievements and skills. Optimize the cover letter for Applicant Tracking Systems (ATS) by incorporating relevant keywords from the job description.
+Write a compelling and humanly-written cover letter tailored to the job description, highlighting key achievements and skills. Optimize the cover letter for Applicant Tracking Systems (ATS) by incorporating relevant keywords from the job description.
 
 If a hiring manager name is not provided, use a generic but professional salutation.
 `,  
