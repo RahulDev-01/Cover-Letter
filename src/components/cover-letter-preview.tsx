@@ -69,6 +69,7 @@ const ClassicTemplate = ({ data, generatedContent }: { data: any, generatedConte
         <p>Best Regards,</p>
         <p className="mt-8 font-headline text-lg">{data.personalInformation.name || "Your Name"}</p>
       </div>
+      <div className="border-b border-black"></div>
     </div>
   );
 };
