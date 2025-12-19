@@ -9,7 +9,7 @@ export const formSchema = z.object({
   }),
   recipientInformation: z.object({
     company: z.string().min(1, "Company name is required."),
-    contactName: z.string().min(1, "Hiring manager's name is required."),
+    contactName: z.string().optional(),
     address: z.string().min(1, "Company address is required."),
   }),
   jobDetails: z.object({

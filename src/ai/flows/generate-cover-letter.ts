@@ -21,7 +21,7 @@ const CoverLetterInputSchema = z.object({
   }).describe('Your personal information.'),
   recipientInformation: z.object({
     company: z.string().describe('The company name.'),
-    contactName: z.string().describe('The recipient name (if known).'),
+    contactName: z.string().optional().describe('The recipient name (if known).'),
     address: z.string().describe('The recipient address.'),
   }).describe('The recipient information.'),
   jobDetails: z.object({
@@ -58,7 +58,9 @@ Address: {{{personalInformation.address}}}
 
 Recipient Information:
 Company: {{{recipientInformation.company}}}
+{{#if recipientInformation.contactName}}
 Contact Name: {{{recipientInformation.contactName}}}
+{{/if}}
 Address: {{{recipientInformation.address}}}
 
 Job Details:
@@ -77,6 +79,8 @@ Template Style: {{{templateStyle}}}
 {{/if}}
 
 Write a compelling cover letter tailored to the job description, highlighting key achievements and skills. Optimize the cover letter for Applicant Tracking Systems (ATS) by incorporating relevant keywords from the job description.
+
+If a hiring manager name is not provided, use a generic but professional salutation.
 `,  
 });
 

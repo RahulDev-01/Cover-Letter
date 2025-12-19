@@ -31,6 +31,14 @@ const ClassicTemplate = ({ data, generatedContent }: { data: any, generatedConte
     }));
   }, []);
 
+  const getSalutation = () => {
+    if (data.recipientInformation.contactName) {
+      const lastName = data.recipientInformation.contactName.split(' ').pop();
+      return `Dear Mr./Ms. ${lastName},`;
+    }
+    return "Dear Hiring Manager,";
+  };
+
   return (
     <div className="font-body text-sm text-foreground space-y-8 bg-white p-12">
       <div className="flex justify-between items-start border-b border-black pb-4">
@@ -46,15 +54,19 @@ const ClassicTemplate = ({ data, generatedContent }: { data: any, generatedConte
       <div className="space-y-4">
         <p>{currentDate}</p>
         <div>
-          <p className="font-bold text-base font-headline">{data.recipientInformation.contactName?.toUpperCase() || "RECIPIENT NAME"}</p>
-          <div className="w-10 border-b-2 border-black my-1"></div>
-          <p>{data.recipientInformation.company ? `Founder ${data.recipientInformation.company}` : "Recipient Title"}</p>
+          {data.recipientInformation.contactName && (
+            <>
+                <p className="font-bold text-base font-headline">{data.recipientInformation.contactName?.toUpperCase()}</p>
+                <div className="w-10 border-b-2 border-black my-1"></div>
+            </>
+          )}
+          <p>{data.recipientInformation.company ? `Hiring Team @ ${data.recipientInformation.company}` : "Recipient Title"}</p>
           <p>{data.recipientInformation.address || "Company Address"}</p>
         </div>
       </div>
 
       <div>
-        <p>Dear Mr. {data.recipientInformation.contactName?.split(' ').pop() || "Peeters"},</p>
+        <p>{getSalutation()}</p>
       </div>
 
       <div className="space-y-4 whitespace-pre-wrap text-justify leading-relaxed">
