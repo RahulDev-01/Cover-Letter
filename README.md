@@ -1,4 +1,4 @@
-# Cover Letter Pro
+# Cover Letter Pro 📨
 
 Welcome to **Cover Letter Pro**, an AI-powered application designed to streamline the process of creating professional and effective cover letters.
 
