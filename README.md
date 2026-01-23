@@ -13,18 +13,5 @@ This application is built with Next.js,TypeScript, and Tailwind CSS, leveraging 
 - **🎨 Template Customization**: The generated letter is presented in a clean, professional template.
 - **📥 Download Options**: Download your final cover letter as a PDF or a PNG image, ready to be sent.
 
-## Getting Started
 
-The main application logic can be found in `src/app/page.tsx`. The AI flows that power the generative features are located in the `src/ai/flows/` directory.
-
-To run the application locally:
-
-1.  Install the dependencies:
-    ```bash
-    npm install
-    ```
-2.  Run the development server:
-    ```bash
-    npm run dev
-    ```
 
