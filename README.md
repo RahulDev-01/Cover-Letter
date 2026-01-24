@@ -2,7 +2,6 @@
 
 Welcome to **Cover Letter Pro**, an AI-powered application designed to streamline the process of creating professional and effective cover letters.
 
-This application is built with Next.js,TypeScript, and Tailwind CSS, leveraging the power of Genkit for its AI capabilities.
 
 ## Features
 
